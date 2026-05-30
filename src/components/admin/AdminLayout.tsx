@@ -16,6 +16,7 @@ const NAV = [
   { href: '/admin/posts', label: 'Conteúdo' },
   { href: '/admin/categories', label: 'Categorias' },
   { href: '/admin/media', label: 'Mídia' },
+  { href: '/admin/submissions', label: 'Mensagens' },
 ];
 
 export default function AdminLayout({ user, children }: Props) {
