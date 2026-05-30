@@ -19,6 +19,13 @@ services:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+      # ZeptoMail (Fase 4) — notificações dos formulários. Token = secret;
+      # endereços = config não-sensível (transitória: usam domínio olmeda
+      # verificado até a migração p/ institutobrasilteama.org).
+      ZEPTO_API_TOKEN: ${ZEPTO_API_TOKEN}
+      CONTACT_FROM_EMAIL: "noreply@olmedapetstudio.com"
+      CONTACT_FROM_NAME: "Instituto Brasil te Ama"
+      CONTACT_TO_EMAIL: "contato@olmedatech.com"
     deploy:
       mode: replicated
       replicas: 1
