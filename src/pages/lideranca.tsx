@@ -1,6 +1,6 @@
 import PublicLayout from "@/components/public/PublicLayout";
-import page from "@/content/public/index";
+import page from "@/content/public/lideranca";
 
-export default function IndexPage() {
+export default function LiderancaPage() {
   return <PublicLayout {...page} />;
 }

@@ -1,6 +1,6 @@
 import PublicLayout from "@/components/public/PublicLayout";
-import page from "@/content/public/index";
+import page from "@/content/public/transparencia";
 
-export default function IndexPage() {
+export default function TransparenciaPage() {
   return <PublicLayout {...page} />;
 }

@@ -14,3 +14,6 @@ yarn-error.log*
 
 # local tooling
 .claude/
+
+# typescript build cache
+*.tsbuildinfo
