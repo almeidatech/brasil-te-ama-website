@@ -4,15 +4,42 @@
   "description": "Brasil te Ama Website",
   "license": "MIT",
   "author": "Amanda Almeida <hello@amandaalmeidda.com>",
+  "private": true,
   "scripts": {
-    "serve:design": "http-server design -p 8000 -o",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src --ext .ts,.tsx",
     "format": "prettier --write src"
   },
+  "dependencies": {
+    "@blocknote/core": "^0.51.2",
+    "@blocknote/mantine": "^0.51.2",
+    "@blocknote/react": "^0.51.2",
+    "@mantine/core": "^8.3.18",
+    "@mantine/hooks": "^8.3.18",
+    "@mdx-js/loader": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
+    "@next/mdx": "^16.2.6",
+    "@sentry/nextjs": "^10.54.0",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.2",
+    "gray-matter": "^4.0.3",
+    "marked": "^18.0.4",
+    "next": "^15.5.18",
+    "next-mdx-remote": "^6.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sonner": "^2.0.7"
+  },
   "devDependencies": {
-    "http-server": "^14.1.0"
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^15.5.18",
+    "http-server": "^14.1.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
   }
 }
