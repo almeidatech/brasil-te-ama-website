@@ -11,3 +11,14 @@
  */
 export const SITE_ID =
   process.env.NEXT_PUBLIC_SITE_ID || '22222222-2222-2222-2222-222222222222';
+
+/**
+ * Storage isolation for the shared `blog-media` bucket.
+ *
+ * The bucket is shared with olmeda-pet. Unlike `posts`/`categories` (which carry
+ * a `site_id` column), the `media` table and Storage objects are NOT scoped by a
+ * column — isolation is BY PATH PREFIX. Every object this app writes lives under
+ * `blog-media/brasil-te-ama/...` and the media manager only lists that prefix.
+ */
+export const MEDIA_BUCKET = 'blog-media';
+export const MEDIA_PREFIX = 'brasil-te-ama';

@@ -44,10 +44,11 @@ function resolveImageSlots() {
   });
 }
 
-export function useSiteEnhancements() {
+export function useSiteEnhancements(enabled = true) {
   const { asPath } = useRouter();
 
   useEffect(() => {
+    if (!enabled) return;
     document.documentElement.classList.add('js-ready');
     const prefersReduced =
       window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -184,5 +185,5 @@ export function useSiteEnhancements() {
       });
       segHandlers.forEach(({ el, fn }) => el.removeEventListener('click', fn));
     };
-  }, [asPath]);
+  }, [asPath, enabled]);
 }
