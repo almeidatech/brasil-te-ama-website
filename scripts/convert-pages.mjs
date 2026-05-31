@@ -83,7 +83,19 @@ function extractBody(html) {
   const navEnd = h.indexOf('</nav>');
   const bodyEnd = h.lastIndexOf('</body>');
   if (navEnd === -1 || bodyEnd === -1) throw new Error('marcadores </nav> ou </body> não encontrados');
-  return h.slice(navEnd + '</nav>'.length, bodyEnd).trim();
+  let body = h.slice(navEnd + '</nav>'.length, bodyEnd);
+  // prefooter + footer NÃO entram no corpo — são renderizados pelo componente
+  // único <Footer/> (PublicLayout). Cortamos no início do prefooter (ou do footer).
+  const candidates = [body.indexOf('<section class="prefooter">'), body.indexOf('<footer')]
+    .filter((i) => i !== -1);
+  if (candidates.length) {
+    let cut = Math.min(...candidates);
+    // também descarta um comentário "<!-- ... PRE-FOOTER ... -->" imediatamente antes
+    const before = body.lastIndexOf('<!--', cut);
+    if (before !== -1 && body.slice(before, cut).trim().endsWith('-->')) cut = before;
+    body = body.slice(0, cut);
+  }
+  return body.trim();
 }
 
 function metaOf(html) {
@@ -118,19 +130,8 @@ for (const file of files) {
   index.push({ file, name, title, bytes: body.length });
 }
 
-// ── Chrome compartilhado (prefooter + footer) p/ páginas dinâmicas (Conteúdo) ──
-{
-  const idx = readFileSync(join(DOCS, 'index.html'), 'utf8').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
-  const start = idx.indexOf('<section class="prefooter">');
-  const end = idx.lastIndexOf('</footer>');
-  if (start === -1 || end === -1) throw new Error('prefooter/footer não encontrados no index.html');
-  let chrome = idx.slice(start, end + '</footer>'.length);
-  chrome = replaceImageSlots(rewriteLinks(rewriteAssets(chrome)));
-  const out = `// AUTO-GERADO — prefooter + footer fiéis (de docs/index.html) p/ páginas dinâmicas.\n` +
-    `const footer = ${JSON.stringify(chrome)};\nexport default footer;\n`;
-  writeFileSync(join(OUT, '_footer.ts'), out);
-  console.log('Chrome compartilhado → src/content/public/_footer.ts (' + chrome.length + ' bytes)');
-}
+// Footer/prefooter NÃO são mais gerados aqui — viraram o componente único
+// src/components/public/Footer.tsx (fonte única, editável à mão).
 
 console.log('Convertidas', index.length, 'páginas:');
 for (const i of index) console.log(`  ${i.file.padEnd(20)} → src/content/public/${i.name}.ts  (${i.bytes} bytes)`);

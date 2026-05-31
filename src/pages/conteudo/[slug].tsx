@@ -3,7 +3,7 @@ import type { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import Navbar from '@/components/public/Navbar';
-import footerHtml from '@/content/public/_footer';
+import Footer from '@/components/public/Footer';
 import { getAllPublishedSlugs, getPublishedPostBySlug, type PublicPost } from '@/lib/posts';
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from '@/lib/seo';
 
@@ -92,7 +92,7 @@ export default function PostPage({ post, dateLabel }: Props) {
         </div>
       </article>
 
-      <div dangerouslySetInnerHTML={{ __html: footerHtml }} />
+      <Footer />
     </>
   );
 }

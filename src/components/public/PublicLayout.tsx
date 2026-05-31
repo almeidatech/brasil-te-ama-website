@@ -3,6 +3,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Navbar from './Navbar';
+import Footer from './Footer';
 import { SITE_NAME, DEFAULT_OG_IMAGE, canonicalUrl } from '@/lib/seo';
 
 export interface PublicPageContent {
@@ -36,6 +37,7 @@ export default function PublicLayout({ title, description, html }: PublicPageCon
       </Head>
       <Navbar />
       <div dangerouslySetInnerHTML={{ __html: html }} />
+      <Footer />
     </>
   );
 }
