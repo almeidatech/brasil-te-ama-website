@@ -1185,6 +1185,10 @@ footer.footer { background: var(--footer); color: rgba(255,255,255,.7); padding:
   .cta-band__inner { grid-template-columns: 1fr; }
   .cta-band__actions { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
   .footer__docs-grid { grid-template-columns: repeat(2, 1fr); }
+  /* Content card grids (.grid carries inline repeat(3,1fr) across 9 pages +
+     /conteudo, with imgcard/card/flip-card/step children) → 2 cols on tablet.
+     !important needed because columns are set via inline style. */
+  .grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
 @media (max-width: 760px) {
   .container { padding: 0 20px; }
@@ -1197,6 +1201,10 @@ footer.footer { background: var(--footer); color: rgba(255,255,255,.7); padding:
   .cta-band__title, .hero__title { font-size: 36px; }
   .footer__docs-grid { grid-template-columns: 1fr; }
   .topbar__contacts span.hide-mobile { display: none; }
+  /* Content card grids → single column on phones (titles/badges/CTA were clipped at 3 cols). */
+  .grid { grid-template-columns: 1fr !important; }
+  /* Section header (title + "ver todas" button) stacks so the button isn't clipped. */
+  .section-header { flex-direction: column !important; align-items: flex-start !important; }
 }
 @media (max-width: 480px) {
   .impact-bar__grid, .valor-grid, .steps { grid-template-columns: 1fr; }
