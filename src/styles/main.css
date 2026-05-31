@@ -309,6 +309,25 @@ p, li, span, label, button, input, textarea, select, a { font-family: var(--font
   .hero__inner { padding: 64px 0; }
 }
 
+/* /selo hero — o selo decorativo (único `right: 8%` inline do site) é grande
+   demais < 1100px e o fundo bordô atrás do título escuro mata a leitura.
+   Encolhe e recolhe pro canto inferior-direito; some no telefone, onde o
+   título ocupa a largura toda. */
+@media (max-width: 1100px) {
+  .hero div[style*="right: 8%"] {
+    width: 240px !important; height: 240px !important;
+    right: -40px !important; top: auto !important; bottom: -40px !important;
+    transform: none !important; opacity: .9 !important;
+  }
+  .hero div[style*="right: 8%"] > div {
+    width: 180px !important; height: 180px !important; padding: 22px !important;
+  }
+  .hero div[style*="right: 8%"] img { max-width: 130px !important; }
+}
+@media (max-width: 700px) {
+  .hero div[style*="right: 8%"] { display: none !important; }
+}
+
 /* ─── CARD ─── */
 .card {
   background: var(--white);
