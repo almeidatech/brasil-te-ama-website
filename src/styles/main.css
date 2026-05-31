@@ -309,23 +309,25 @@ p, li, span, label, button, input, textarea, select, a { font-family: var(--font
   .hero__inner { padding: 64px 0; }
 }
 
-/* /selo hero — o selo decorativo (único `right: 8%` inline do site) é grande
-   demais < 1100px e o fundo bordô atrás do título escuro mata a leitura.
-   Encolhe e recolhe pro canto inferior-direito; some no telefone, onde o
-   título ocupa a largura toda. */
+/* /selo hero — o selo decorativo (único `right: 8%` inline do site) sobrepõe
+   o título < 1100px. Aí empilhamos o hero (row→column) e tiramos o selo do
+   posicionamento absoluto p/ o fluxo: como ele vem antes do .container no DOM,
+   `order` o joga p/ baixo do texto, centralizado e menor. */
 @media (max-width: 1100px) {
+  .hero { flex-direction: column; }
+  .hero > .container { order: 1; }
   .hero div[style*="right: 8%"] {
-    width: 240px !important; height: 240px !important;
-    right: -40px !important; top: auto !important; bottom: -40px !important;
-    transform: none !important; opacity: .9 !important;
+    position: static !important;
+    order: 2 !important;
+    inset: auto !important;
+    transform: none !important;
+    margin: 0 auto 56px !important;
+    width: 260px !important; height: 260px !important;
   }
   .hero div[style*="right: 8%"] > div {
-    width: 180px !important; height: 180px !important; padding: 22px !important;
+    width: 200px !important; height: 200px !important; padding: 26px !important;
   }
-  .hero div[style*="right: 8%"] img { max-width: 130px !important; }
-}
-@media (max-width: 700px) {
-  .hero div[style*="right: 8%"] { display: none !important; }
+  .hero div[style*="right: 8%"] img { max-width: 150px !important; }
 }
 
 /* ─── CARD ─── */
