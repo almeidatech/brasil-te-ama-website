@@ -62,10 +62,10 @@ function buildNewsSection(cards: NewsCard[]): string {
   <div class="container">
     <div class="section-header fade-up" style="display:flex; align-items:flex-end; justify-content:space-between; gap:24px;">
       <div>
-        <span class="eyebrow">Mantenha-se atualizado</span>
-        <h2 class="section-title">O que a gente faz, aparece.</h2>
+        <span class="eyebrow">Notícias em destaque</span>
+        <h2 class="section-title">Acompanhe nossas ações</h2>
         <hr class="divider">
-        <p class="section-sub" style="margin-top:14px;">Cada ação tem nome, data e resultado documentado.</p>
+        <p class="section-sub" style="margin-top:14px;">Compromisso documentado. Cada passo, cada parceria e cada resultado em campo são registrados com total rastreabilidade.</p>
       </div>
       <a href="/conteudo" class="btn btn--secondary">Ver todas as notícias →</a>
     </div>
