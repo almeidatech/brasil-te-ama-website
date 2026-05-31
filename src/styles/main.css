@@ -1112,6 +1112,15 @@ footer.footer { background: var(--footer); color: rgba(255,255,255,.7); padding:
 .gov-card--support {
   border-left-color: var(--dourado);
 }
+/* gov-grid is repeat(3,1fr) with no responsive rule → 3 cards overflowed the
+   viewport on mobile (the real source of the <480px horizontal overflow). */
+@media (max-width: 1024px) {
+  .gov-row-wrap .gov-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .gov-row-wrap .gov-grid { grid-template-columns: 1fr; }
+  .gov-row-wrap::before { display: none; } /* connecting line makes no sense stacked */
+}
 
 /* Atalhos rápidos shortcut cards */
 .shortcut-card {
@@ -1189,11 +1198,13 @@ footer.footer { background: var(--footer); color: rgba(255,255,255,.7); padding:
   .cta-band__inner { grid-template-columns: 1fr; }
   .cta-band__actions { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
   .footer__docs-grid { grid-template-columns: repeat(2, 1fr); }
-  /* Content card grids (.grid carries inline repeat(3,1fr) across 9 pages +
-     /conteudo, with imgcard/card/flip-card/step children) → 2 cols on tablet.
-     minmax(0,1fr) (not 1fr) lets tracks shrink below content min-content,
-     preventing grid blow-out / horizontal overflow. !important: columns are inline. */
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  /* Inline-defined multi-col grids defeat responsive CSS (inline > class rules).
+     Target .grid AND any element with an inline repeat(3|4, 1fr) (e.g. .steps on
+     /projetos) → 2 cols on tablet. minmax(0,1fr) lets tracks shrink below
+     min-content, preventing grid blow-out / horizontal overflow. */
+  .grid,
+  [style*="repeat(3, 1fr)"],
+  [style*="repeat(4, 1fr)"] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 }
 @media (max-width: 760px) {
   .container { padding: 0 20px; }
@@ -1206,9 +1217,12 @@ footer.footer { background: var(--footer); color: rgba(255,255,255,.7); padding:
   .cta-band__title, .hero__title { font-size: 36px; }
   .footer__docs-grid { grid-template-columns: 1fr; }
   .topbar__contacts span.hide-mobile { display: none; }
-  /* Content card grids → single column on phones (titles/badges/CTA were clipped at 3 cols).
-     minmax(0,1fr) so the single track can shrink below wide children (no overflow). */
-  .grid { grid-template-columns: minmax(0, 1fr) !important; }
+  /* Single column on phones for .grid + any inline multi-col grid (titles/badges/CTA
+     were clipped, steps overflowed). minmax(0,1fr) so the track shrinks below wide children. */
+  .grid,
+  [style*="repeat(2, 1fr)"],
+  [style*="repeat(3, 1fr)"],
+  [style*="repeat(4, 1fr)"] { grid-template-columns: minmax(0, 1fr) !important; }
   /* Section header (title + "ver todas" button) stacks so the button isn't clipped. */
   .section-header { flex-direction: column !important; align-items: flex-start !important; }
 }
@@ -1217,6 +1231,8 @@ footer.footer { background: var(--footer); color: rgba(255,255,255,.7); padding:
   .topbar__contacts, .topbar__right { gap: 12px; }
   .topbar__inner { flex-wrap: wrap; }
   .form-card { padding: 24px; }
+  /* Long-text buttons (.btn is white-space:nowrap) wrap instead of overflowing. */
+  .btn { white-space: normal; }
 }
 
 /* ─────────────────────────────────────────────────────────────
