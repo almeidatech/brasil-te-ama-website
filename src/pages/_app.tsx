@@ -1,4 +1,5 @@
 import type { AppProps } from 'next/app';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import '@/styles/main.css';
@@ -17,6 +18,11 @@ export default function App({ Component, pageProps }: AppProps) {
   usePublicForms(!isAdmin);
   return (
     <>
+      <Head>
+        {/* Override Next's default `width=device-width` (no scale) — without
+            initial-scale, mobile browsers shrink-to-fit on any overflow. */}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
       <Component {...pageProps} />
       {isAdmin && <AdminToaster />}
     </>
