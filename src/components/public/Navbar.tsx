@@ -3,18 +3,32 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import LanguageSwitcher from './LanguageSwitcher';
+import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n';
 
-const NAV = [
-  { href: '/', label: 'Início' },
-  { href: '/sobre', label: 'Sobre' },
-  { href: '/selo', label: 'Selo Brasil Te Ama' },
-  { href: '/projetos', label: 'Projetos' },
-  { href: '/conteudo', label: 'Conteúdo' },
-  { href: '/contato', label: 'Contato' },
-];
+const NAV_HREFS = ['/', '/sobre', '/selo', '/projetos', '/conteudo', '/contato'] as const;
+
+// Localized nav labels + CTA. "Selo Brasil Te Ama" stays as the program brand.
+const NAV_LABELS: Record<Locale, Record<string, string>> = {
+  pt: { '/': 'Início', '/sobre': 'Sobre', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projetos', '/conteudo': 'Conteúdo', '/contato': 'Contato' },
+  en: { '/': 'Home', '/sobre': 'About', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projects', '/conteudo': 'Content', '/contato': 'Contact' },
+  es: { '/': 'Inicio', '/sobre': 'Acerca', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Proyectos', '/conteudo': 'Contenido', '/contato': 'Contacto' },
+  it: { '/': 'Home', '/sobre': 'Chi siamo', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Progetti', '/conteudo': 'Contenuti', '/contato': 'Contatti' },
+  fr: { '/': 'Accueil', '/sobre': 'À propos', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projets', '/conteudo': 'Contenu', '/contato': 'Contact' },
+};
+
+const CTA_LABEL: Record<Locale, string> = {
+  pt: 'Entrar em Contato →',
+  en: 'Get in touch →',
+  es: 'Entrar en contacto →',
+  it: 'Contattaci →',
+  fr: 'Nous contacter →',
+};
 
 export default function Navbar() {
-  const { pathname } = useRouter();
+  const { pathname, locale } = useRouter();
+  const loc: Locale = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const labels = NAV_LABELS[loc];
   const [open, setOpen] = useState(false);
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/');
@@ -58,15 +72,16 @@ export default function Navbar() {
               <img src="/assets/logo-principal.png" alt="Instituto Brasil Te Ama" className="navbar__logo-img" />
             </Link>
             <ul className="navbar__nav">
-              {NAV.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className={isActive(item.href) ? 'active' : undefined} onClick={() => setOpen(false)}>
-                    {item.label}
+              {NAV_HREFS.map((href) => (
+                <li key={href}>
+                  <Link href={href} className={isActive(href) ? 'active' : undefined} onClick={() => setOpen(false)}>
+                    {labels[href]}
                   </Link>
                 </li>
               ))}
             </ul>
-            <Link href="/contato" className="btn btn--primary navbar__cta">Entrar em Contato →</Link>
+            <Link href="/contato" className="btn btn--primary navbar__cta">{CTA_LABEL[loc]}</Link>
+            <LanguageSwitcher />
             <button className="navbar__toggle" aria-label="Abrir menu" onClick={() => setOpen((v) => !v)}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
             </button>

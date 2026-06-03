@@ -52,6 +52,18 @@ export type Database = {
         Update: { created_at?: string; edited_by?: string | null; id?: string; post_id?: string; snapshot?: Json; version?: number }
         Relationships: []
       }
+      post_images: {
+        Row: { id: string; post_id: string; url: string; storage_path: string | null; alt: string | null; width: number | null; height: number | null; order_index: number; created_at: string }
+        Insert: { id?: string; post_id: string; url: string; storage_path?: string | null; alt?: string | null; width?: number | null; height?: number | null; order_index?: number; created_at?: string }
+        Update: { id?: string; post_id?: string; url?: string; storage_path?: string | null; alt?: string | null; width?: number | null; height?: number | null; order_index?: number; created_at?: string }
+        Relationships: []
+      }
+      post_translations: {
+        Row: { post_id: string; locale: string; title: string | null; excerpt: string | null; body_html: string | null; seo_title: string | null; seo_description: string | null; source_hash: string | null; translated_at: string }
+        Insert: { post_id: string; locale: string; title?: string | null; excerpt?: string | null; body_html?: string | null; seo_title?: string | null; seo_description?: string | null; source_hash?: string | null; translated_at?: string }
+        Update: { post_id?: string; locale?: string; title?: string | null; excerpt?: string | null; body_html?: string | null; seo_title?: string | null; seo_description?: string | null; source_hash?: string | null; translated_at?: string }
+        Relationships: []
+      }
       posts: {
         Row: { site_id: string; author_id: string | null; body_html: string | null; body_md: string | null; category: string | null; category_id: string | null; cover_image_id: string | null; created_at: string; excerpt: string | null; id: string; og_image_id: string | null; published_at: string | null; reading_time_min: number | null; seo_description: string | null; seo_title: string | null; slug: string; status: Database["public"]["Enums"]["content_status"]; tags: string[]; title: string; updated_at: string }
         Insert: { site_id?: string; author_id?: string | null; body_html?: string | null; body_md?: string | null; category?: string | null; category_id?: string | null; cover_image_id?: string | null; created_at?: string; excerpt?: string | null; id?: string; og_image_id?: string | null; published_at?: string | null; reading_time_min?: number | null; seo_description?: string | null; seo_title?: string | null; slug: string; status?: Database["public"]["Enums"]["content_status"]; tags?: string[]; title: string; updated_at?: string }

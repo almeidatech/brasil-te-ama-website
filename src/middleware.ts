@@ -3,10 +3,16 @@ import { createServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/database';
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/:locale/admin/:path*'],
 };
 
 const PUBLIC_ADMIN_PATHS = ['/admin/login', '/admin/auth/callback'];
+
+// Strip a leading /en|/es|/it|/fr so admin auth checks are locale-agnostic.
+// (Admin is not a localized surface, but Next i18n still exposes /xx/admin.)
+function stripLocale(pathname: string): string {
+  return pathname.replace(/^\/(en|es|it|fr)(?=\/|$)/, '') || '/';
+}
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
@@ -30,7 +36,7 @@ export async function middleware(req: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const path = req.nextUrl.pathname;
+  const path = stripLocale(req.nextUrl.pathname);
   const isPublic = PUBLIC_ADMIN_PATHS.some((p) => path === p || path.startsWith(p + '/'));
 
   if (!user && !isPublic) {

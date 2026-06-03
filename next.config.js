@@ -12,6 +12,13 @@ const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  // PT na raiz; demais idiomas em subpastas (/en, /es, /it, /fr). localeDetection
+  // desligado para não redirecionar visitantes por header Accept-Language.
+  i18n: {
+    locales: ['pt', 'en', 'es', 'it', 'fr'],
+    defaultLocale: 'pt',
+    localeDetection: false,
+  },
   async headers() {
     const oneYearImmutable = 'public, max-age=31536000, immutable';
     const rules = [

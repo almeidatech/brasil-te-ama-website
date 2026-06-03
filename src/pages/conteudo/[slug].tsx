@@ -4,18 +4,25 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Navbar from '@/components/public/Navbar';
 import Footer from '@/components/public/Footer';
+import PostGallery from '@/components/public/PostGallery';
 import { getAllPublishedSlugs, getPublishedPostBySlug, type PublicPost } from '@/lib/posts';
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from '@/lib/seo';
+import { DEFAULT_LOCALE, isLocale, OG_LOCALE, type Locale } from '@/lib/i18n';
 
 interface Props {
   post: PublicPost;
   dateLabel: string;
+  locale: Locale;
 }
 
-const fmtDate = (iso: string | null): string => {
+const INTL_LOCALE: Record<Locale, string> = {
+  pt: 'pt-BR', en: 'en-US', es: 'es-ES', it: 'it-IT', fr: 'fr-FR',
+};
+
+const fmtDate = (iso: string | null, loc: Locale): string => {
   if (!iso) return '';
   try {
-    return new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
+    return new Intl.DateTimeFormat(INTL_LOCALE[loc], { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
   } catch {
     return '';
   }
@@ -26,14 +33,15 @@ export const getStaticPaths: GetStaticPaths = async () => {
   return { paths: slugs.map((slug) => ({ params: { slug } })), fallback: 'blocking' };
 };
 
-export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
+export const getStaticProps: GetStaticProps<Props> = async ({ params, locale }) => {
+  const loc: Locale = isLocale(locale) ? locale : DEFAULT_LOCALE;
   const slug = params?.slug as string;
-  const post = await getPublishedPostBySlug(slug);
+  const post = await getPublishedPostBySlug(slug, loc);
   if (!post) return { notFound: true, revalidate: 60 };
-  return { props: { post, dateLabel: fmtDate(post.published_at) }, revalidate: 60 };
+  return { props: { post, dateLabel: fmtDate(post.published_at, loc), locale: loc }, revalidate: 60 };
 };
 
-export default function PostPage({ post, dateLabel }: Props) {
+export default function PostPage({ post, dateLabel, locale }: Props) {
   const title = post.seo_title || `${post.title} — Instituto Brasil Te Ama`;
   const description = post.seo_description || post.excerpt || '';
   const canonical = `${SITE_URL}/conteudo/${post.slug}`;
@@ -46,7 +54,7 @@ export default function PostPage({ post, dateLabel }: Props) {
         <link rel="canonical" href={canonical} />
         <meta property="og:type" content="article" />
         <meta property="og:site_name" content={SITE_NAME} />
-        <meta property="og:locale" content="pt_BR" />
+        <meta property="og:locale" content={OG_LOCALE[locale]} />
         <meta property="og:title" content={title} />
         {description ? <meta property="og:description" content={description} /> : null}
         <meta property="og:url" content={canonical} />
@@ -86,7 +94,14 @@ export default function PostPage({ post, dateLabel }: Props) {
             />
           ) : null}
           <div className="post-body" dangerouslySetInnerHTML={{ __html: post.body_html }} />
-          <p style={{ maxWidth: 760, margin: '48px auto 0' }}>
+        </div>
+      </article>
+
+      {post.gallery.length > 0 && <PostGallery images={post.gallery} locale={locale} />}
+
+      <article className="section section--white" style={{ paddingTop: 0 }}>
+        <div className="container">
+          <p style={{ maxWidth: 760, margin: '0 auto' }}>
             <Link href="/conteudo" className="btn btn--outline-bordo">← Voltar para Conteúdo</Link>
           </p>
         </div>

@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { marked } from 'marked';
 import { SITE_ID } from './site';
+import { DEFAULT_LOCALE } from './i18n';
 import type { Database } from '@/types/database';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -12,6 +13,13 @@ function client() {
   return createClient<Database>(SUPABASE_URL, SUPABASE_ANON, {
     auth: { persistSession: false },
   });
+}
+
+export interface GalleryImage {
+  url: string;
+  alt: string | null;
+  width: number | null;
+  height: number | null;
 }
 
 export interface PublicPost {
@@ -28,6 +36,7 @@ export interface PublicPost {
   tags: string[];
   cover_url: string | null;   // for in-page hero
   og_image_url: string | null; // social preview; falls back to cover
+  gallery: GalleryImage[];     // carousel images (ordered)
 }
 
 interface MediaJoin { public_url: string | null; storage_path: string | null }
@@ -83,10 +92,61 @@ function toPublic(row: PostRow): PublicPost {
     tags: row.tags ?? [],
     cover_url: cover,
     og_image_url: og,
+    gallery: [],
   };
 }
 
-export async function getAllPublishedPosts(): Promise<PublicPost[]> {
+export async function getPostGallery(postId: string): Promise<GalleryImage[]> {
+  const { data, error } = await client()
+    .from('post_images')
+    .select('url, alt, width, height')
+    .eq('post_id', postId)
+    .order('order_index', { ascending: true });
+  if (error) {
+    console.error('[posts] getPostGallery:', error.message);
+    return [];
+  }
+  return (data ?? []) as unknown as GalleryImage[];
+}
+
+// Overlay translated fields from post_translations for non-PT locales.
+// Missing translations fall back to the PT original (so nothing ever breaks).
+async function applyTranslations(posts: PublicPost[], locale: string): Promise<PublicPost[]> {
+  if (locale === DEFAULT_LOCALE || posts.length === 0) return posts;
+  const ids = posts.map((p) => p.id);
+  const { data, error } = await client()
+    .from('post_translations')
+    .select('post_id, title, excerpt, body_html, seo_title, seo_description')
+    .eq('locale', locale)
+    .in('post_id', ids);
+  if (error) {
+    console.error('[posts] applyTranslations:', error.message);
+    return posts;
+  }
+  const rows = (data ?? []) as unknown as Array<{
+    post_id: string;
+    title: string | null;
+    excerpt: string | null;
+    body_html: string | null;
+    seo_title: string | null;
+    seo_description: string | null;
+  }>;
+  const map = new Map(rows.map((t) => [t.post_id, t]));
+  return posts.map((p) => {
+    const t = map.get(p.id);
+    if (!t) return p;
+    return {
+      ...p,
+      title: t.title ?? p.title,
+      excerpt: t.excerpt ?? p.excerpt,
+      body_html: t.body_html ?? p.body_html,
+      seo_title: t.seo_title ?? p.seo_title,
+      seo_description: t.seo_description ?? p.seo_description,
+    };
+  });
+}
+
+export async function getAllPublishedPosts(locale: string = DEFAULT_LOCALE): Promise<PublicPost[]> {
   const { data, error } = await client()
     .from('posts')
     .select(SELECT)
@@ -98,10 +158,14 @@ export async function getAllPublishedPosts(): Promise<PublicPost[]> {
     console.error('[posts] getAllPublishedPosts:', error.message);
     return [];
   }
-  return ((data ?? []) as unknown as PostRow[]).map(toPublic);
+  const posts = ((data ?? []) as unknown as PostRow[]).map(toPublic);
+  return applyTranslations(posts, locale);
 }
 
-export async function getPublishedPostBySlug(slug: string): Promise<PublicPost | null> {
+export async function getPublishedPostBySlug(
+  slug: string,
+  locale: string = DEFAULT_LOCALE,
+): Promise<PublicPost | null> {
   const { data, error } = await client()
     .from('posts')
     .select(SELECT)
@@ -115,7 +179,9 @@ export async function getPublishedPostBySlug(slug: string): Promise<PublicPost |
     return null;
   }
   if (!data) return null;
-  return toPublic(data as unknown as PostRow);
+  const [post] = await applyTranslations([toPublic(data as unknown as PostRow)], locale);
+  post.gallery = await getPostGallery(post.id);
+  return post;
 }
 
 export async function getAllPublishedSlugs(): Promise<string[]> {

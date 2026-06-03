@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { SITE_NAME, DEFAULT_OG_IMAGE, canonicalUrl } from '@/lib/seo';
+import { DEFAULT_LOCALE, isLocale, OG_LOCALE } from '@/lib/i18n';
 
 export interface PublicPageContent {
   title: string;
@@ -13,8 +14,9 @@ export interface PublicPageContent {
 }
 
 export default function PublicLayout({ title, description, html }: PublicPageContent) {
-  const { asPath } = useRouter();
+  const { asPath, locale } = useRouter();
   const canonical = canonicalUrl(asPath);
+  const ogLocale = OG_LOCALE[isLocale(locale) ? locale : DEFAULT_LOCALE];
   return (
     <>
       <Head>
@@ -24,7 +26,7 @@ export default function PublicLayout({ title, description, html }: PublicPageCon
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={SITE_NAME} />
-        <meta property="og:locale" content="pt_BR" />
+        <meta property="og:locale" content={ogLocale} />
         <meta property="og:title" content={title} />
         {description ? <meta property="og:description" content={description} /> : null}
         <meta property="og:url" content={canonical} />

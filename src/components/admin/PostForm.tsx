@@ -6,6 +6,8 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { SITE_ID, MEDIA_BUCKET, MEDIA_PREFIX } from '@/lib/site';
 import { resizeImage, formatBytes } from '@/lib/image-resize';
 import { revalidateConteudo } from '@/lib/revalidate-client';
+import { TRANSLATABLE_LOCALES, LOCALE_META } from '@/lib/i18n';
+import PostGalleryManager from './PostGalleryManager';
 
 const PostEditor = dynamic(() => import('./PostEditor'), { ssr: false });
 
@@ -58,6 +60,7 @@ export default function PostForm({ initial, categories, mode }: Props) {
   const [saving, setSaving] = useState<null | 'draft' | 'publish'>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [translating, setTranslating] = useState<string | null>(null);
   const coverInput = useRef<HTMLInputElement>(null);
   const slugTouched = useRef(initial.slug !== '');
 
@@ -150,6 +153,28 @@ export default function PostForm({ initial, categories, mode }: Props) {
     toast.success(`${verb}: "${title}"`);
     if (mode === 'create' && newId) router.push(`/admin/posts/${newId}/edit?saved=1`);
     else router.replace(router.asPath);
+  };
+
+  const translatePost = async (locale: string) => {
+    if (!initial.id) {
+      toast.error('Salve o post antes de traduzir.');
+      return;
+    }
+    setTranslating(locale);
+    try {
+      const r = await fetch('/api/admin/translate-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: initial.id, locale }),
+      });
+      const json = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
+      toast.success(`Tradução ${LOCALE_META[locale as keyof typeof LOCALE_META].label} gerada e salva.`);
+    } catch (e) {
+      toast.error(`Falha ao traduzir (${locale.toUpperCase()}): ${(e as Error).message}`);
+    } finally {
+      setTranslating(null);
+    }
   };
 
   const tagsStr = useMemo(() => form.tags.join(', '), [form.tags]);
@@ -273,6 +298,38 @@ export default function PostForm({ initial, categories, mode }: Props) {
             <div style={{ fontSize: 11, color: 'var(--fg-3,#aaa)', textAlign: 'right' }}>{form.seo_description.length}/160</div>
           </Row>
         </Card>
+
+        {mode === 'edit' && initial.id && (
+          <Card title="Galeria (carrossel)">
+            <PostGalleryManager postId={initial.id} />
+          </Card>
+        )}
+
+        {mode === 'edit' && (
+          <Card title="Traduções">
+            <p style={{ fontSize: 12, color: 'var(--fg-3,#888)', margin: '0 0 10px' }}>
+              Traduz o conteúdo salvo (título, resumo, corpo e SEO) e grava por idioma.
+              Salve as alterações antes de gerar.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+              {TRANSLATABLE_LOCALES.map((loc) => {
+                const m = LOCALE_META[loc];
+                return (
+                  <button
+                    key={loc}
+                    type="button"
+                    onClick={() => translatePost(loc)}
+                    disabled={translating !== null}
+                    style={{ ...btn('ghost'), display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                  >
+                    <span aria-hidden="true">{m.flag}</span>
+                    {translating === loc ? 'Traduzindo…' : `Traduzir ${m.label}`}
+                  </button>
+                );
+              })}
+            </div>
+          </Card>
+        )}
 
         <div style={{ fontSize: 12, color: 'var(--fg-3,#aaa)' }}>
           {form.reading_time_min ? `~${form.reading_time_min} min de leitura` : ''}
