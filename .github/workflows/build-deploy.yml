@@ -89,6 +89,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           REVALIDATE_SECRET: ${{ secrets.REVALIDATE_SECRET }}
           ZEPTO_API_TOKEN: ${{ secrets.ZEPTO_API_TOKEN }}
+          GOOGLE_TRANSLATE_API_KEY: ${{ secrets.GOOGLE_TRANSLATE_API_KEY }}
         run: |
           ssh root@${{ secrets.VPS_HOST }} \
             "echo '${{ secrets.GHCR_PAT }}' | docker login ghcr.io -u ${{ github.actor }} --password-stdin && \
@@ -98,6 +99,7 @@ jobs:
              SUPABASE_SERVICE_ROLE_KEY='$SUPABASE_SERVICE_ROLE_KEY' \
              REVALIDATE_SECRET='$REVALIDATE_SECRET' \
              ZEPTO_API_TOKEN='$ZEPTO_API_TOKEN' \
+             GOOGLE_TRANSLATE_API_KEY='$GOOGLE_TRANSLATE_API_KEY' \
              docker stack deploy -c /root/brasilteama-stack.yml brasilteama --with-registry-auth --detach=false"
 
       - name: Wait for service health

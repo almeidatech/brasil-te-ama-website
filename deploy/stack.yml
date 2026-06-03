@@ -19,6 +19,10 @@ services:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+      # Google Cloud Translation — usado pelo botão "Traduzir" por idioma no
+      # editor de posts (/api/admin/translate-post). As páginas estáticas já
+      # vêm traduzidas no build (cache _i18n), então não dependem desta chave.
+      GOOGLE_TRANSLATE_API_KEY: ${GOOGLE_TRANSLATE_API_KEY}
       # ZeptoMail (Fase 4) — notificações dos formulários. Token = secret;
       # endereços = config não-sensível (transitória: usam domínio olmeda
       # verificado até a migração p/ institutobrasilteama.org).
