@@ -245,10 +245,15 @@ p, li, span, label, button, input, textarea, select, a { font-family: var(--font
 
 /* mobile menu toggle */
 .navbar__toggle { display: none; padding: 8px; color: var(--grafite); }
+/* Language switcher: horizontal flag row on desktop, compact dropdown ≤880px. */
+.lang-switch__row { display: inline-flex; align-items: center; gap: 8px; }
+.lang-switch__dropdown { display: none; }
 @media (max-width: 880px) {
   .navbar__nav { display: none; }
   .navbar__toggle { display: inline-flex; }
   .navbar__cta { display: none; }
+  .lang-switch__row { display: none; }
+  .lang-switch__dropdown { display: inline-flex; }
   .navbar.open .navbar__nav {
     display: flex; flex-direction: column; position: absolute;
     top: 100%; left: 0; right: 0; background: var(--marfim);

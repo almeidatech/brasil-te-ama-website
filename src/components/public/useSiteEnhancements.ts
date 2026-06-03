@@ -45,7 +45,11 @@ function resolveImageSlots() {
 }
 
 export function useSiteEnhancements(enabled = true) {
-  const { asPath } = useRouter();
+  // `locale` is part of the dep array because switching language re-renders the
+  // injected HTML (new .fade-up nodes) without changing asPath — Next keeps the
+  // locale in router.locale, not in asPath. Without it the effect wouldn't re-run
+  // and the fresh nodes would stay at opacity:0 (html.js-ready hides them).
+  const { asPath, locale } = useRouter();
 
   useEffect(() => {
     if (!enabled) return;
@@ -185,5 +189,5 @@ export function useSiteEnhancements(enabled = true) {
       });
       segHandlers.forEach(({ el, fn }) => el.removeEventListener('click', fn));
     };
-  }, [asPath, enabled]);
+  }, [asPath, locale, enabled]);
 }
