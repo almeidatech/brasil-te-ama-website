@@ -6,15 +6,15 @@ import { useState } from 'react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n';
 
-const NAV_HREFS = ['/', '/sobre', '/selo', '/projetos', '/conteudo', '/contato'] as const;
+const NAV_HREFS = ['/', '/sobre', '/selo', '/projetos', '/transparencia', '/conteudo', '/contato'] as const;
 
 // Localized nav labels + CTA. "Selo Brasil Te Ama" stays as the program brand.
 const NAV_LABELS: Record<Locale, Record<string, string>> = {
-  pt: { '/': 'Início', '/sobre': 'Sobre', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projetos', '/conteudo': 'Conteúdo', '/contato': 'Contato' },
-  en: { '/': 'Home', '/sobre': 'About', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projects', '/conteudo': 'Content', '/contato': 'Contact' },
-  es: { '/': 'Inicio', '/sobre': 'Acerca', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Proyectos', '/conteudo': 'Contenido', '/contato': 'Contacto' },
-  it: { '/': 'Home', '/sobre': 'Chi siamo', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Progetti', '/conteudo': 'Contenuti', '/contato': 'Contatti' },
-  fr: { '/': 'Accueil', '/sobre': 'À propos', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projets', '/conteudo': 'Contenu', '/contato': 'Contact' },
+  pt: { '/': 'Início', '/sobre': 'Sobre', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projetos', '/transparencia': 'Transparência', '/conteudo': 'Conteúdo', '/contato': 'Contato' },
+  en: { '/': 'Home', '/sobre': 'About', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projects', '/transparencia': 'Transparency', '/conteudo': 'Content', '/contato': 'Contact' },
+  es: { '/': 'Inicio', '/sobre': 'Acerca', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Proyectos', '/transparencia': 'Transparencia', '/conteudo': 'Contenido', '/contato': 'Contacto' },
+  it: { '/': 'Home', '/sobre': 'Chi siamo', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Progetti', '/transparencia': 'Trasparenza', '/conteudo': 'Contenuti', '/contato': 'Contatti' },
+  fr: { '/': 'Accueil', '/sobre': 'À propos', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projets', '/transparencia': 'Transparence', '/conteudo': 'Contenu', '/contato': 'Contact' },
 };
 
 const CTA_LABEL: Record<Locale, string> = {
