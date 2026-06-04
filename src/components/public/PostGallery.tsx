@@ -16,9 +16,22 @@ function aspect(img: GalleryImage): number {
 
 export default function PostGallery({ images, locale }: { images: GalleryImage[]; locale?: string }) {
   const [index, setIndex] = useState<number | null>(null);
+  // Natural aspect ratios measured on image load — keeps each slide in the
+  // photo's true orientation (vertical/horizontal) even when the DB row has no
+  // width/height (e.g. gallery backfilled from Storage). Falls back to aspect().
+  const [ratios, setRatios] = useState<Record<number, number>>({});
   const loc: Locale = isLocale(locale) ? locale : DEFAULT_LOCALE;
   const open = index !== null;
   const count = images.length;
+
+  const ratioFor = (i: number, img: GalleryImage): number => ratios[i] ?? aspect(img);
+  const onImgLoad = (i: number) => (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const t = e.currentTarget;
+    if (t.naturalWidth && t.naturalHeight) {
+      const r = t.naturalWidth / t.naturalHeight;
+      setRatios((prev) => (prev[i] ? prev : { ...prev, [i]: r }));
+    }
+  };
 
   const go = useCallback(
     (dir: number) => setIndex((i) => (i === null ? i : (i + dir + count) % count)),
@@ -70,7 +83,7 @@ export default function PostGallery({ images, locale }: { images: GalleryImage[]
               style={{
                 flex: '0 0 auto',
                 height: 320,
-                aspectRatio: String(aspect(img)),
+                aspectRatio: String(ratioFor(i, img)),
                 maxWidth: '88vw',
                 borderRadius: 'var(--r-card)',
                 overflow: 'hidden',
@@ -85,6 +98,7 @@ export default function PostGallery({ images, locale }: { images: GalleryImage[]
                 src={img.url}
                 alt={img.alt ?? ''}
                 loading="lazy"
+                onLoad={onImgLoad(i)}
                 style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
               />
             </button>
@@ -155,7 +169,7 @@ export default function PostGallery({ images, locale }: { images: GalleryImage[]
                   aria-label={`${i + 1}`}
                   aria-current={i === index}
                   style={{
-                    flex: '0 0 auto', height: 60, aspectRatio: String(aspect(img)),
+                    flex: '0 0 auto', height: 60, aspectRatio: String(ratioFor(i, img)),
                     borderRadius: 6, overflow: 'hidden', cursor: 'pointer', padding: 0,
                     background: 'rgba(255,255,255,.06)',
                     border: i === index ? '2px solid var(--dourado)' : '2px solid transparent',
