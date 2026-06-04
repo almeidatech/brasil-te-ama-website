@@ -1,11 +1,11 @@
 // Language selector for the public chrome.
-//  · Desktop (>880px): a horizontal row of circular country flags.
+//  · Desktop (>880px): a horizontal row of glossy circular country flags.
 //  · Mobile  (≤880px): a compact dropdown showing the active flag that expands
 //    into a vertical list of flag options.
+// Flags use a glossy "sphere" treatment (highlight + inner shadow + lift) to
+// match the reference design (docs/assets/images/circleFlagsModel.png).
 // Both variants are always rendered; CSS (.lang-switch__row / __dropdown) toggles
 // which is visible at the 880px navbar breakpoint — avoids a hydration mismatch.
-// Switching swaps the locale subpath while keeping the current route
-// (PT at root, others under /en|/es|/it|/fr).
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
 import { LOCALES, LOCALE_META, DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n';
@@ -26,17 +26,36 @@ function flagSrc(loc: Locale): string {
   return `/assets/flags/${FLAG_FILE[loc]}.svg`;
 }
 
-// A circular flag image that fills its (square) button/container.
-function FlagImg({ loc, size }: { loc: Locale; size: number }) {
+// Glossy-sphere overlay: a top-left highlight + bottom darkening + inset rim,
+// laid over the flat flag so it reads as a 3D button (per the reference set).
+const GLOSS_BG =
+  'radial-gradient(circle at 32% 24%, rgba(255,255,255,.6) 0%, rgba(255,255,255,.18) 16%, rgba(255,255,255,0) 42%),' +
+  'radial-gradient(circle at 50% 120%, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 55%)';
+
+// A glossy circular flag that fills its (square) container.
+function GlossFlag({ loc, size }: { loc: Locale; size: number }) {
   return (
-    <img
-      src={flagSrc(loc)}
-      alt=""
-      aria-hidden="true"
-      width={size}
-      height={size}
-      style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
-    />
+    <>
+      <img
+        src={flagSrc(loc)}
+        alt=""
+        aria-hidden="true"
+        width={size}
+        height={size}
+        style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+      <span
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: '50%',
+          pointerEvents: 'none',
+          background: GLOSS_BG,
+          boxShadow: 'inset 0 -2px 5px rgba(0,0,0,.28), inset 0 2px 3px rgba(255,255,255,.3)',
+        }}
+      />
+    </>
   );
 }
 
@@ -70,7 +89,7 @@ export default function LanguageSwitcher() {
 
   return (
     <div className="lang-switch">
-      {/* ── Desktop: horizontal flag row ── */}
+      {/* ── Desktop: horizontal glossy flag row ── */}
       <div className="lang-switch__row" role="group" aria-label="Selecionar idioma">
         {LOCALES.map((loc) => {
           const m = LOCALE_META[loc];
@@ -85,6 +104,7 @@ export default function LanguageSwitcher() {
               aria-pressed={isCurrent}
               title={m.name}
               style={{
+                position: 'relative',
                 width: SIZE,
                 height: SIZE,
                 padding: 0,
@@ -93,36 +113,35 @@ export default function LanguageSwitcher() {
                 flex: '0 0 auto',
                 cursor: isCurrent ? 'default' : 'pointer',
                 background: 'none',
-                border: isCurrent ? '2px solid var(--dourado)' : '2px solid transparent',
-                boxShadow: isCurrent ? '0 2px 8px rgba(0,0,0,.18)' : 'none',
-                opacity: isCurrent ? 1 : 0.6,
-                filter: isCurrent ? 'none' : 'grayscale(.35)',
-                transform: isCurrent ? 'scale(1.06)' : 'none',
+                border: isCurrent ? '2px solid var(--dourado)' : '2px solid rgba(0,0,0,.08)',
+                boxShadow: isCurrent
+                  ? '0 4px 10px rgba(0,0,0,.3)'
+                  : '0 2px 5px rgba(0,0,0,.25)',
+                opacity: isCurrent ? 1 : 0.78,
+                transform: isCurrent ? 'scale(1.1)' : 'none',
                 transition:
-                  'opacity .2s var(--ease), filter .2s var(--ease), transform .2s var(--ease), border-color .2s var(--ease)',
+                  'opacity .2s var(--ease), transform .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease)',
               }}
               onMouseEnter={(e) => {
                 if (isCurrent) return;
                 const b = e.currentTarget;
                 b.style.opacity = '1';
-                b.style.filter = 'none';
-                b.style.transform = 'scale(1.06)';
+                b.style.transform = 'scale(1.1)';
               }}
               onMouseLeave={(e) => {
                 if (isCurrent) return;
                 const b = e.currentTarget;
-                b.style.opacity = '0.6';
-                b.style.filter = 'grayscale(.35)';
+                b.style.opacity = '0.78';
                 b.style.transform = 'none';
               }}
             >
-              <FlagImg loc={loc} size={SIZE} />
+              <GlossFlag loc={loc} size={SIZE} />
             </button>
           );
         })}
       </div>
 
-      {/* ── Mobile: dropdown with flag options ── */}
+      {/* ── Mobile: dropdown with glossy flag options ── */}
       <div ref={ddRef} className="lang-switch__dropdown" style={{ position: 'relative' }}>
         <button
           type="button"
@@ -144,6 +163,7 @@ export default function LanguageSwitcher() {
         >
           <span
             style={{
+              position: 'relative',
               width: 30,
               height: 30,
               borderRadius: '50%',
@@ -151,9 +171,10 @@ export default function LanguageSwitcher() {
               display: 'block',
               flex: '0 0 auto',
               border: '2px solid var(--dourado)',
+              boxShadow: '0 2px 5px rgba(0,0,0,.25)',
             }}
           >
-            <FlagImg loc={current} size={30} />
+            <GlossFlag loc={current} size={30} />
           </span>
           <svg
             width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--grafite)"
@@ -209,6 +230,7 @@ export default function LanguageSwitcher() {
                   >
                     <span
                       style={{
+                        position: 'relative',
                         width: 28,
                         height: 28,
                         borderRadius: '50%',
@@ -216,9 +238,10 @@ export default function LanguageSwitcher() {
                         display: 'block',
                         flex: '0 0 auto',
                         border: isCurrent ? '2px solid var(--dourado)' : '1px solid var(--border)',
+                        boxShadow: '0 1px 3px rgba(0,0,0,.2)',
                       }}
                     >
-                      <FlagImg loc={loc} size={28} />
+                      <GlossFlag loc={loc} size={28} />
                     </span>
                     <span style={{ flex: 1 }}>{m.name}</span>
                     <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.5px', color: 'var(--dourado)' }}>

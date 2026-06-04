@@ -15,7 +15,9 @@ import { useRouter } from 'next/router';
 
 const FORM_TYPES_BY_PATH: Record<string, string[]> = {
   '/contato': ['parceria', 'parceria', 'imprensa', 'contato'],
+  '/empresas': ['parceria'],
   '/para-ongs': ['ong'],
+  '/selo': ['parceria'],
   '/voluntarios': ['voluntario'],
 };
 

@@ -175,6 +175,25 @@ export function useSiteEnhancements(enabled = true) {
       segHandlers.push({ el: btn, fn });
     });
 
+    // ── Contato: abas (.seg__item[data-tab]) ↔ painéis (.tab-pane) ──
+    // Porta do <script> inline de docs/contato.html (não executa via
+    // dangerouslySetInnerHTML). Sem isso, as abas não trocam de painel e os
+    // forms ficam inalcançáveis (só o 1º painel é visível). Contato é a única
+    // superfície com data-tab, então o querySelectorAll global é seguro.
+    const tabHandlers: Array<{ el: HTMLElement; fn: () => void }> = [];
+    const tabBtns = Array.from(document.querySelectorAll<HTMLElement>('.seg__item[data-tab]'));
+    tabBtns.forEach((btn) => {
+      const fn = () => {
+        tabBtns.forEach((b) => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        document.querySelectorAll<HTMLElement>('.tab-pane').forEach((p) => {
+          p.hidden = p.dataset.pane !== btn.dataset.tab;
+        });
+      };
+      btn.addEventListener('click', fn);
+      tabHandlers.push({ el: btn, fn });
+    });
+
     // ── Image slots → Supabase Storage ─────────────────────────
     resolveImageSlots();
 
@@ -188,6 +207,7 @@ export function useSiteEnhancements(enabled = true) {
         el.removeEventListener('keydown', key as EventListener);
       });
       segHandlers.forEach(({ el, fn }) => el.removeEventListener('click', fn));
+      tabHandlers.forEach(({ el, fn }) => el.removeEventListener('click', fn));
     };
   }, [asPath, locale, enabled]);
 }
