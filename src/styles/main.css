@@ -1492,6 +1492,10 @@ html.js-ready .fade-in.is-visible { animation: fadeIn .7s var(--ease) both; }
 .cred-logo:hover { filter: grayscale(0); opacity: 1; transform: translateY(-2px); }
 .cred-logo { height: 58px; }
 .cred-logo image-slot { width: 100%; height: 58px; }
+/* Touch/mobile não tem hover — mostra as logos na cor original (senão ficam cinza) */
+@media (hover: none) {
+  .cred-logo { filter: none; opacity: 1; }
+}
 .cred-bar__cta { text-align: center; margin-top: 32px; }
 
 /* ── Homepage: Histórias que inspiram — featured + minis ── */
