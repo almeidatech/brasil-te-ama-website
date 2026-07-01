@@ -732,6 +732,13 @@ footer.footer { background: var(--footer); color: rgba(255,255,255,.7); padding:
 }
 .faq-item[open] summary::after { content: '−'; }
 .faq-item__body { padding: 0 28px 22px; font-size: 14px; color: var(--text-gray); line-height: 1.7; }
+/* Handoff 2026-07: FAQs novas usam .faq-answer (mesmo estilo do __body) com conteúdo rico (listas, links) */
+.faq-answer { padding: 0 28px 22px; font-size: 14px; color: var(--text-gray); line-height: 1.7; }
+.faq-answer p { margin: 0 0 10px; }
+.faq-answer p:last-child { margin-bottom: 0; }
+.faq-answer ul { margin: 0 0 10px 18px; padding: 0; }
+.faq-answer li { margin: 0 0 6px; }
+.faq-answer a { color: var(--bordo); text-underline-offset: 2px; }
 
 /* ─── STEP / TIMELINE BLOCKS ─── */
 .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }

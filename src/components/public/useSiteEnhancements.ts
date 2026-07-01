@@ -228,7 +228,7 @@ export function useSiteEnhancements(enabled = true) {
     // forms ficam inalcançáveis (só o 1º painel é visível). Contato é a única
     // superfície com data-tab, então o querySelectorAll global é seguro.
     const tabHandlers: Array<{ el: HTMLElement; fn: () => void }> = [];
-    const tabBtns = Array.from(document.querySelectorAll<HTMLElement>('.seg__item[data-tab]'));
+    const tabBtns = Array.from(document.querySelectorAll<HTMLElement>('.seg__item[data-tab], .qa-btn[data-tab]'));
     tabBtns.forEach((btn) => {
       const fn = () => {
         tabBtns.forEach((b) => b.classList.remove('is-active'));
