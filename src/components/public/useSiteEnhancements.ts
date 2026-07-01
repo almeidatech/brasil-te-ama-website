@@ -150,8 +150,20 @@ export function useSiteEnhancements(enabled = true) {
       flipHandlers.push({ el: card, click, key });
     });
 
-    // ── Conteúdo: filtros de categoria (chips .seg__item) ──────
+    // ── Filtro de categoria (.seg__item[data-cat]) + busca textual (#projSearch) sobre #grid ──
+    // Usado por Conteúdo (só categorias) e Projetos (categorias + busca). Categoria e busca
+    // são combinadas: um card só aparece se casar com AMBAS.
     const segHandlers: Array<{ el: HTMLElement; fn: () => void }> = [];
+    const gridSearch = document.querySelector<HTMLInputElement>('#projSearch');
+    let activeCat = 'Todos';
+    const applyGridFilter = () => {
+      const q = (gridSearch?.value || '').toLowerCase().trim();
+      document.querySelectorAll<HTMLElement>('#grid > .imgcard').forEach((card) => {
+        const catOk = activeCat === 'Todos' || card.dataset.cat === activeCat;
+        const textOk = !q || (card.textContent || '').toLowerCase().includes(q);
+        card.style.display = catOk && textOk ? '' : 'none';
+      });
+    };
     document.querySelectorAll<HTMLElement>('.seg__item[data-cat]').forEach((btn) => {
       const fn = () => {
         document.querySelectorAll<HTMLElement>('.seg__item[data-cat]').forEach((b) => {
@@ -166,14 +178,17 @@ export function useSiteEnhancements(enabled = true) {
         btn.style.color = 'var(--white)';
         const badge = btn.querySelector<HTMLElement>('span');
         if (badge) { badge.style.background = 'rgba(255,255,255,.2)'; badge.style.color = 'var(--white)'; }
-        const cat = btn.dataset.cat;
-        document.querySelectorAll<HTMLElement>('#grid > .imgcard').forEach((card) => {
-          card.style.display = cat === 'Todos' || card.dataset.cat === cat ? '' : 'none';
-        });
+        activeCat = btn.dataset.cat || 'Todos';
+        applyGridFilter();
       };
       btn.addEventListener('click', fn);
       segHandlers.push({ el: btn, fn });
     });
+    let gridSearchFn: (() => void) | null = null;
+    if (gridSearch) {
+      gridSearchFn = () => applyGridFilter();
+      gridSearch.addEventListener('input', gridSearchFn);
+    }
 
     // ── Contadores animados (.counter-value[data-target]) ─────────
     // Porta do <script> de Consumidor.dc.html. Anima ao entrar na viewport.
@@ -222,23 +237,62 @@ export function useSiteEnhancements(enabled = true) {
       chipHandlers.push({ el: chip, fn });
     });
 
-    // ── Contato: abas (.seg__item[data-tab]) ↔ painéis (.tab-pane) ──
-    // Porta do <script> inline de docs/contato.html (não executa via
-    // dangerouslySetInnerHTML). Sem isso, as abas não trocam de painel e os
-    // forms ficam inalcançáveis (só o 1º painel é visível). Contato é a única
-    // superfície com data-tab, então o querySelectorAll global é seguro.
-    const tabHandlers: Array<{ el: HTMLElement; fn: () => void }> = [];
-    const tabBtns = Array.from(document.querySelectorAll<HTMLElement>('.seg__item[data-tab], .qa-btn[data-tab]'));
-    tabBtns.forEach((btn) => {
-      const fn = () => {
-        tabBtns.forEach((b) => b.classList.remove('is-active'));
-        btn.classList.add('is-active');
-        document.querySelectorAll<HTMLElement>('.tab-pane').forEach((p) => {
-          p.hidden = p.dataset.pane !== btn.dataset.tab;
-        });
+    // ── Contato: seg tabs + qa-grid atalhos + review ao vivo ──────
+    // Porta fiel do <script> de Contato.dc.html. A barra `.seg__item[data-tab]`
+    // é o seletor real dos forms; os cards `.qa-btn[data-jump]` são atalhos que
+    // ativam a aba e rolam até o form; cada `[data-review]` espelha o valor de
+    // um input (por id) no resumo do último passo. Contato é a única superfície
+    // com esses marcadores, então o querySelectorAll global é seguro.
+    const tabHandlers: Array<{ el: HTMLElement; fn: (e: Event) => void }> = [];
+    const reviewHandlers: Array<{ el: HTMLElement; fn: () => void }> = [];
+    const segTabs = Array.from(document.querySelectorAll<HTMLElement>('.seg__item[data-tab]'));
+    const qaJump = Array.from(document.querySelectorAll<HTMLElement>('.qa-btn[data-jump]'));
+    const cPanes = Array.from(document.querySelectorAll<HTMLElement>('.tab-pane[data-pane]'));
+    if (segTabs.length && cPanes.length) {
+      const setActiveTab = (tab: string) => {
+        segTabs.forEach((b) => b.classList.toggle('is-active', b.dataset.tab === tab));
+        qaJump.forEach((c) => c.classList.toggle('is-active', c.dataset.jump === tab));
+        cPanes.forEach((p) => { p.style.display = p.dataset.pane === tab ? 'block' : 'none'; });
       };
-      btn.addEventListener('click', fn);
-      tabHandlers.push({ el: btn, fn });
+      segTabs.forEach((b) => {
+        const fn = () => setActiveTab(b.dataset.tab || '');
+        b.addEventListener('click', fn);
+        tabHandlers.push({ el: b, fn });
+      });
+      const jump = (tab: string) => {
+        setActiveTab(tab);
+        const f = document.getElementById('formulario') || document.querySelector<HTMLElement>('.contact-layout');
+        if (f) window.scrollTo({ top: f.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' });
+      };
+      document.querySelectorAll<HTMLElement>('[data-jump]').forEach((b) => {
+        const fn = (e: Event) => { e.preventDefault(); jump(b.dataset.jump || ''); };
+        b.addEventListener('click', fn);
+        tabHandlers.push({ el: b, fn });
+      });
+      // estado inicial coerente (aba is-active do markup, ou a 1ª)
+      const initial = segTabs.find((b) => b.classList.contains('is-active')) || segTabs[0];
+      if (initial) setActiveTab(initial.dataset.tab || '');
+    }
+    // review ao vivo: [data-review="id"] espelha o input #id
+    document.querySelectorAll<HTMLElement>('[data-review]').forEach((span) => {
+      const id = span.getAttribute('data-review');
+      if (!id) return;
+      const src = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+      if (!src) return;
+      const upd = () => {
+        let v = '';
+        if (src.tagName === 'SELECT') {
+          const s = src as HTMLSelectElement;
+          v = s.value ? s.options[s.selectedIndex].text : '';
+        } else {
+          v = (src as HTMLInputElement).value;
+        }
+        span.textContent = v.trim() || '—';
+      };
+      src.addEventListener('input', upd);
+      src.addEventListener('change', upd);
+      upd();
+      reviewHandlers.push({ el: src, fn: upd });
     });
 
     // ── Image slots → Supabase Storage ─────────────────────────
@@ -254,8 +308,13 @@ export function useSiteEnhancements(enabled = true) {
         el.removeEventListener('keydown', key as EventListener);
       });
       segHandlers.forEach(({ el, fn }) => el.removeEventListener('click', fn));
+      if (gridSearch && gridSearchFn) gridSearch.removeEventListener('input', gridSearchFn);
       chipHandlers.forEach(({ el, fn }) => el.removeEventListener('click', fn));
       tabHandlers.forEach(({ el, fn }) => el.removeEventListener('click', fn));
+      reviewHandlers.forEach(({ el, fn }) => {
+        el.removeEventListener('input', fn);
+        el.removeEventListener('change', fn);
+      });
       if (counterObs) counterObs.disconnect();
     };
   }, [asPath, locale, enabled]);
