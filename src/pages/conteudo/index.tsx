@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Navbar from '@/components/public/Navbar';
 import Footer from '@/components/public/Footer';
 import { getAllPublishedPosts, getAllCategories } from '@/lib/posts';
-import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from '@/lib/seo';
+import { SITE_NAME, DEFAULT_OG_IMAGE, localizedUrl, hreflangAlternates } from '@/lib/seo';
 import { DEFAULT_LOCALE, isLocale, OG_LOCALE, type Locale } from '@/lib/i18n';
 
 interface Card {
@@ -125,18 +125,22 @@ const ClockIcon = () => (
 
 export default function ConteudoIndex({ cards, chips, total, locale }: Props) {
   const ui = UI[locale];
+  const canonical = localizedUrl('/conteudo', locale);
   return (
     <>
       <Head>
         <title>{ui.title}</title>
         <meta name="description" content={ui.desc} />
-        <link rel="canonical" href={`${SITE_URL}/conteudo`} />
+        <link rel="canonical" href={canonical} />
+        {hreflangAlternates('/conteudo').map((a) => (
+          <link key={a.hrefLang} rel="alternate" hrefLang={a.hrefLang} href={a.href} />
+        ))}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={SITE_NAME} />
         <meta property="og:locale" content={OG_LOCALE[locale]} />
         <meta property="og:title" content={ui.title} />
         <meta property="og:description" content={ui.desc} />
-        <meta property="og:url" content={`${SITE_URL}/conteudo`} />
+        <meta property="og:url" content={canonical} />
         <meta property="og:image" content={DEFAULT_OG_IMAGE} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={ui.title} />
