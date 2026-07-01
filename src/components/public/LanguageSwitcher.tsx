@@ -20,7 +20,7 @@ const FLAG_FILE: Record<Locale, string> = {
   fr: 'fr',
 };
 
-const SIZE = 38; // circle diameter (px) — deliberately bold within the header
+const SIZE = 24; // circle diameter (px) — elegante como o protótipo (~20px), sem dominar o header
 
 function flagSrc(loc: Locale): string {
   return `/assets/flags/${FLAG_FILE[loc]}.svg`;
