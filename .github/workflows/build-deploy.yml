@@ -55,8 +55,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            NEXT_PUBLIC_SITE_URL=https://brasilteama.alcgestao.com.br
-            NEXT_PUBLIC_NOINDEX=true
+            NEXT_PUBLIC_SITE_URL=https://institutobrasilteama.org
+            NEXT_PUBLIC_NOINDEX=false
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
             NEXT_PUBLIC_SENTRY_DSN=${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
@@ -105,7 +105,7 @@ jobs:
       - name: Wait for service health
         run: |
           for i in {1..30}; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' https://brasilteama.alcgestao.com.br/ || true)
+            code=$(curl -s -o /dev/null -w '%{http_code}' https://institutobrasilteama.org/ || true)
             echo "Attempt $i: HTTP $code"
             if [ "$code" = "200" ]; then exit 0; fi
             sleep 10

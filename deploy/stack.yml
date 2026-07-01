@@ -3,8 +3,8 @@ version: "3.9"
 # Docker Swarm stack for Brasil te Ama
 # Deployed via: docker stack deploy -c stack.yml brasilteama
 #
-# Staging domain: brasilteama.alcgestao.com.br
-# Official domain (após aprovação do dono): institutobrasilteama.org
+# Official domain (público, indexado): institutobrasilteama.org
+# Legacy/staging (301 permanente → oficial): brasilteama.alcgestao.com.br
 
 services:
   web:
@@ -13,8 +13,8 @@ services:
       - olmedaNet
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_SITE_URL: https://brasilteama.alcgestao.com.br
-      NEXT_PUBLIC_NOINDEX: "true"
+      NEXT_PUBLIC_SITE_URL: https://institutobrasilteama.org
+      NEXT_PUBLIC_NOINDEX: "false"
       NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
@@ -50,15 +50,27 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=olmedaNet"
-        # HTTP (entrypoint web) — Traefik global redirect already sends to websecure
-        - "traefik.http.routers.brasilteama-http.entrypoints=web"
-        - "traefik.http.routers.brasilteama-http.rule=Host(`brasilteama.alcgestao.com.br`)"
-        # HTTPS
-        - "traefik.http.routers.brasilteama-https.entrypoints=websecure"
-        - "traefik.http.routers.brasilteama-https.rule=Host(`brasilteama.alcgestao.com.br`)"
-        - "traefik.http.routers.brasilteama-https.tls=true"
-        - "traefik.http.routers.brasilteama-https.tls.certresolver=letsencryptresolver"
-        # Service / loadbalancer
+
+        # ── Domínio OFICIAL — serve o app (HTTP→HTTPS via redirect global do Traefik) ──
+        - "traefik.http.routers.brasilteama-official.entrypoints=websecure"
+        - "traefik.http.routers.brasilteama-official.rule=Host(`institutobrasilteama.org`)"
+        - "traefik.http.routers.brasilteama-official.tls=true"
+        - "traefik.http.routers.brasilteama-official.tls.certresolver=letsencryptresolver"
+        - "traefik.http.routers.brasilteama-official.service=brasilteama-svc"
+
+        # ── Domínio PROVISÓRIO — 301 permanente para o oficial (preserva o path) ──
+        # $$ escapa o $ do compose para o Traefik receber ${1}.
+        - "traefik.http.middlewares.brasilteama-to-official.redirectregex.regex=^https?://brasilteama\\.alcgestao\\.com\\.br/(.*)"
+        - "traefik.http.middlewares.brasilteama-to-official.redirectregex.replacement=https://institutobrasilteama.org/$${1}"
+        - "traefik.http.middlewares.brasilteama-to-official.redirectregex.permanent=true"
+        - "traefik.http.routers.brasilteama-legacy.entrypoints=websecure"
+        - "traefik.http.routers.brasilteama-legacy.rule=Host(`brasilteama.alcgestao.com.br`)"
+        - "traefik.http.routers.brasilteama-legacy.tls=true"
+        - "traefik.http.routers.brasilteama-legacy.tls.certresolver=letsencryptresolver"
+        - "traefik.http.routers.brasilteama-legacy.middlewares=brasilteama-to-official"
+        - "traefik.http.routers.brasilteama-legacy.service=brasilteama-svc"
+
+        # ── Service / loadbalancer ──
         - "traefik.http.services.brasilteama-svc.loadbalancer.server.port=3000"
         - "traefik.http.services.brasilteama-svc.loadbalancer.healthcheck.path=/"
         - "traefik.http.services.brasilteama-svc.loadbalancer.healthcheck.interval=30s"
