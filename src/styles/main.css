@@ -157,6 +157,28 @@ p, li, span, label, button, input, textarea, select, a { font-family: var(--font
 .divider--center { margin: 16px auto 0; }
 .section-header--center .divider { margin: 16px auto 0; }
 
+/* ─── INTRO LOGO ROW (logo institucional ao lado do texto) ─── */
+.intro-logo-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 40px;
+  align-items: center;
+}
+.intro-logo-row__logo {
+  width: clamp(160px, 22vw, 250px);
+  height: auto;
+  display: block;
+}
+@media (max-width: 760px) {
+  .intro-logo-row {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 24px;
+  }
+  .intro-logo-row__logo { width: min(220px, 58vw); }
+}
+
 /* ─── BUTTONS (pill) ─── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
