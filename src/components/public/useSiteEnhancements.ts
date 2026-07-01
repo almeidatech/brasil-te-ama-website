@@ -175,6 +175,53 @@ export function useSiteEnhancements(enabled = true) {
       segHandlers.push({ el: btn, fn });
     });
 
+    // ── Contadores animados (.counter-value[data-target]) ─────────
+    // Porta do <script> de Consumidor.dc.html. Anima ao entrar na viewport.
+    let counterObs: IntersectionObserver | null = null;
+    const animateCounter = (el: HTMLElement) => {
+      const target = parseInt(el.getAttribute('data-target') || '', 10) || 0;
+      const prefix = el.getAttribute('data-prefix') || '';
+      if (prefersReduced) { el.textContent = prefix + target.toLocaleString('pt-BR'); return; }
+      const dur = 1600;
+      let start: number | null = null;
+      const step = (ts: number) => {
+        if (start === null) start = ts;
+        const p = Math.min((ts - start) / dur, 1);
+        el.textContent = prefix + Math.floor(p * target).toLocaleString('pt-BR');
+        if (p < 1) window.requestAnimationFrame(step);
+        else el.textContent = prefix + target.toLocaleString('pt-BR');
+      };
+      window.requestAnimationFrame(step);
+    };
+    const counters = Array.from(document.querySelectorAll<HTMLElement>('.counter-value'));
+    if (counters.length && 'IntersectionObserver' in window) {
+      counterObs = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { animateCounter(e.target as HTMLElement); counterObs!.unobserve(e.target); }
+        });
+      }, { threshold: 0.4 });
+      counters.forEach((c) => counterObs!.observe(c));
+    } else {
+      counters.forEach(animateCounter);
+    }
+
+    // ── Consumidor: filtro de parceiros (.filter-chip[data-filter]) ──
+    const chipHandlers: Array<{ el: HTMLElement; fn: () => void }> = [];
+    const filterChips = Array.from(document.querySelectorAll<HTMLElement>('.filter-chip'));
+    const partnerCards = Array.from(document.querySelectorAll<HTMLElement>('.partner-card'));
+    filterChips.forEach((chip) => {
+      const fn = () => {
+        filterChips.forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+        const f = chip.getAttribute('data-filter');
+        partnerCards.forEach((card) => {
+          card.style.display = f === 'all' || card.getAttribute('data-category') === f ? '' : 'none';
+        });
+      };
+      chip.addEventListener('click', fn);
+      chipHandlers.push({ el: chip, fn });
+    });
+
     // ── Contato: abas (.seg__item[data-tab]) ↔ painéis (.tab-pane) ──
     // Porta do <script> inline de docs/contato.html (não executa via
     // dangerouslySetInnerHTML). Sem isso, as abas não trocam de painel e os
@@ -207,7 +254,9 @@ export function useSiteEnhancements(enabled = true) {
         el.removeEventListener('keydown', key as EventListener);
       });
       segHandlers.forEach(({ el, fn }) => el.removeEventListener('click', fn));
+      chipHandlers.forEach(({ el, fn }) => el.removeEventListener('click', fn));
       tabHandlers.forEach(({ el, fn }) => el.removeEventListener('click', fn));
+      if (counterObs) counterObs.disconnect();
     };
   }, [asPath, locale, enabled]);
 }
