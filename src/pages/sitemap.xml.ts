@@ -10,6 +10,7 @@ import { SITE_URL } from '@/lib/seo';
 const STATIC_PATHS = [
   '/', '/sobre', '/selo', '/projetos', '/conteudo', '/contato',
   '/empresas', '/lideranca', '/transparencia', '/para-ongs', '/voluntarios',
+  '/consumidor',
 ];
 
 interface Entry { loc: string; lastmod?: string; priority: string }

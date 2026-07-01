@@ -6,15 +6,17 @@ import { useState } from 'react';
 import LanguageSwitcher from './LanguageSwitcher';
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n';
 
-const NAV_HREFS = ['/', '/sobre', '/selo', '/projetos', '/transparencia', '/conteudo', '/contato'] as const;
+// "Projetos" saiu do menu no handoff 2026-07 (decisão dos donos). A página
+// /projetos continua existindo e acessível por link direto (footer, CTAs).
+const NAV_HREFS = ['/', '/sobre', '/selo', '/transparencia', '/conteudo', '/contato'] as const;
 
 // Localized nav labels + CTA. "Selo Brasil Te Ama" stays as the program brand.
 const NAV_LABELS: Record<Locale, Record<string, string>> = {
-  pt: { '/': 'Início', '/sobre': 'Sobre', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projetos', '/transparencia': 'Transparência', '/conteudo': 'Conteúdo', '/contato': 'Contato' },
-  en: { '/': 'Home', '/sobre': 'About', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projects', '/transparencia': 'Transparency', '/conteudo': 'Content', '/contato': 'Contact' },
-  es: { '/': 'Inicio', '/sobre': 'Acerca', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Proyectos', '/transparencia': 'Transparencia', '/conteudo': 'Contenido', '/contato': 'Contacto' },
-  it: { '/': 'Home', '/sobre': 'Chi siamo', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Progetti', '/transparencia': 'Trasparenza', '/conteudo': 'Contenuti', '/contato': 'Contatti' },
-  fr: { '/': 'Accueil', '/sobre': 'À propos', '/selo': 'Selo Brasil Te Ama', '/projetos': 'Projets', '/transparencia': 'Transparence', '/conteudo': 'Contenu', '/contato': 'Contact' },
+  pt: { '/': 'Início', '/sobre': 'Sobre', '/selo': 'Selo Brasil Te Ama', '/transparencia': 'Transparência', '/conteudo': 'Conteúdo', '/contato': 'Contato' },
+  en: { '/': 'Home', '/sobre': 'About', '/selo': 'Selo Brasil Te Ama', '/transparencia': 'Transparency', '/conteudo': 'Content', '/contato': 'Contact' },
+  es: { '/': 'Inicio', '/sobre': 'Acerca', '/selo': 'Selo Brasil Te Ama', '/transparencia': 'Transparencia', '/conteudo': 'Contenido', '/contato': 'Contacto' },
+  it: { '/': 'Home', '/sobre': 'Chi siamo', '/selo': 'Selo Brasil Te Ama', '/transparencia': 'Trasparenza', '/conteudo': 'Contenuti', '/contato': 'Contatti' },
+  fr: { '/': 'Accueil', '/sobre': 'À propos', '/selo': 'Selo Brasil Te Ama', '/transparencia': 'Transparence', '/conteudo': 'Contenu', '/contato': 'Contact' },
 };
 
 const CTA_LABEL: Record<Locale, string> = {
@@ -78,8 +80,8 @@ export default function Navbar() {
                 </li>
               ))}
             </ul>
-            <Link href="/contato" className="btn btn--primary navbar__cta">{CTA_LABEL[loc]}</Link>
             <LanguageSwitcher />
+            <Link href="/contato" className="btn btn--primary navbar__cta">{CTA_LABEL[loc]}</Link>
             <button className="navbar__toggle" aria-label="Abrir menu" onClick={() => setOpen((v) => !v)}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
             </button>
