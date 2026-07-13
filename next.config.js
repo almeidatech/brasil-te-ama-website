@@ -19,6 +19,14 @@ const nextConfig = {
     defaultLocale: 'pt',
     localeDetection: false,
   },
+  async redirects() {
+    // A página /lideranca foi descontinuada (redundante) — o conteúdo de
+    // liderança vive na seção #lideranca da página Sobre. 301 preserva
+    // qualquer link/bookmark antigo e a autoridade de SEO.
+    return [
+      { source: '/lideranca', destination: '/sobre#lideranca', permanent: true },
+    ];
+  },
   async headers() {
     const oneYearImmutable = 'public, max-age=31536000, immutable';
     const rules = [
