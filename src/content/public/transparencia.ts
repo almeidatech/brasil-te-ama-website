@@ -60,50 +60,29 @@ const page = {
       <span class="eyebrow">Documentos</span>
       <h2 class="section-title">Documentos do Instituto</h2>
       <hr class="divider divider--center">
-      <p class="section-sub" style="margin-top:16px;">O que rege nossas operações, com o status real de cada documento. O que ainda não está pronto aparece como <strong style="color:var(--dourado);font-weight:700;">em elaboração</strong>.</p>
+      <p class="section-sub" style="margin-top:16px;">O que rege nossas operações. Documentos públicos, disponíveis para consulta a qualquer momento.</p>
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-top:40px;">
 
       <article class="card fade-up delay-1"><div class="card__body" style="padding:28px;text-align:center;display:flex;flex-direction:column;height:100%;">
-        <div style="width:60px;height:60px;border-radius:50%;background:rgba(183,154,99,.15);color:var(--dourado);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 16px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-        <h3 style="font-family:var(--font-lora);font-weight:700;font-size:17px;line-height:1.3;margin-bottom:8px;">Estatuto Social</h3>
-        <p style="font-size:13px;color:var(--text-gray);line-height:1.6;margin-bottom:18px;flex:1;">Governança legal e estrutura do Instituto. Define quem decide e como funciona a administração.</p>
-        <span style="display:inline-block;padding:8px 16px;border-radius:var(--r-btn);background:rgba(183,154,99,.15);color:var(--dourado);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Em elaboração</span>
-      </div></article>
-
-      <article class="card fade-up delay-2"><div class="card__body" style="padding:28px;text-align:center;display:flex;flex-direction:column;height:100%;">
-        <div style="width:60px;height:60px;border-radius:50%;background:rgba(183,154,99,.15);color:var(--dourado);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 16px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-        <h3 style="font-family:var(--font-lora);font-weight:700;font-size:17px;line-height:1.3;margin-bottom:8px;">Código de Conduta</h3>
-        <p style="font-size:13px;color:var(--text-gray);line-height:1.6;margin-bottom:18px;flex:1;">Princípios éticos que guiam ações, parcerias e decisões. Todo parceiro e colaborador assina.</p>
-        <span style="display:inline-block;padding:8px 16px;border-radius:var(--r-btn);background:rgba(183,154,99,.15);color:var(--dourado);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Em elaboração</span>
-      </div></article>
-
-      <article class="card fade-up delay-3"><div class="card__body" style="padding:28px;text-align:center;display:flex;flex-direction:column;height:100%;">
         <div style="width:60px;height:60px;border-radius:50%;background:var(--bordo);color:#fff;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 16px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
         <h3 style="font-family:var(--font-lora);font-weight:700;font-size:17px;line-height:1.3;margin-bottom:8px;">Política de Privacidade</h3>
         <p style="font-size:13px;color:var(--text-gray);line-height:1.6;margin-bottom:18px;flex:1;">Tratamento de dados pessoais e conformidade com a LGPD.</p>
         <a href="/privacidade" class="btn btn--secondary btn--sm">Ver documento →</a>
       </div></article>
 
-      <article class="card fade-up delay-1"><div class="card__body" style="padding:28px;text-align:center;display:flex;flex-direction:column;height:100%;">
+      <article class="card fade-up delay-2"><div class="card__body" style="padding:28px;text-align:center;display:flex;flex-direction:column;height:100%;">
         <div style="width:60px;height:60px;border-radius:50%;background:var(--bordo);color:#fff;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 16px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
         <h3 style="font-family:var(--font-lora);font-weight:700;font-size:17px;line-height:1.3;margin-bottom:8px;">Termos de Uso</h3>
         <p style="font-size:13px;color:var(--text-gray);line-height:1.6;margin-bottom:18px;flex:1;">Direitos e responsabilidades de empresas, ONGs e cidadãos na plataforma.</p>
         <a href="/termos" class="btn btn--secondary btn--sm">Ver documento →</a>
       </div></article>
 
-      <article class="card fade-up delay-2"><div class="card__body" style="padding:28px;text-align:center;display:flex;flex-direction:column;height:100%;">
+      <article class="card fade-up delay-3"><div class="card__body" style="padding:28px;text-align:center;display:flex;flex-direction:column;height:100%;">
         <div style="width:60px;height:60px;border-radius:50%;background:var(--bordo);color:#fff;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 16px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
         <h3 style="font-family:var(--font-lora);font-weight:700;font-size:17px;line-height:1.3;margin-bottom:8px;">Política de Cookies</h3>
         <p style="font-size:13px;color:var(--text-gray);line-height:1.6;margin-bottom:18px;flex:1;">Tecnologias de rastreamento e preferências.</p>
         <a href="/cookies" class="btn btn--secondary btn--sm">Ver documento →</a>
-      </div></article>
-
-      <article class="card fade-up delay-3"><div class="card__body" style="padding:28px;text-align:center;display:flex;flex-direction:column;height:100%;">
-        <div style="width:60px;height:60px;border-radius:50%;background:rgba(183,154,99,.15);color:var(--dourado);display:inline-flex;align-items:center;justify-content:center;margin:0 auto 16px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-        <h3 style="font-family:var(--font-lora);font-weight:700;font-size:17px;line-height:1.3;margin-bottom:8px;">Regulamento do Selo Brasil Te Ama</h3>
-        <p style="font-size:13px;color:var(--text-gray);line-height:1.6;margin-bottom:18px;flex:1;">Como empresas aderem, como ONGs recebem apoio e como o impacto é verificado.</p>
-        <span style="display:inline-block;padding:8px 16px;border-radius:var(--r-btn);background:rgba(183,154,99,.15);color:var(--dourado);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Em elaboração</span>
       </div></article>
 
     </div>
