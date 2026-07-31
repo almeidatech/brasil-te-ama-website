@@ -6,7 +6,7 @@ import Navbar from '@/components/public/Navbar';
 import Footer from '@/components/public/Footer';
 import PostGallery from '@/components/public/PostGallery';
 import { getAllPublishedSlugs, getPublishedPostBySlug, type PublicPost } from '@/lib/posts';
-import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from '@/lib/seo';
+import { SITE_NAME, DEFAULT_OG_IMAGE, localizedUrl, hreflangAlternates } from '@/lib/seo';
 import { DEFAULT_LOCALE, isLocale, OG_LOCALE, type Locale } from '@/lib/i18n';
 
 interface Props {
@@ -44,7 +44,8 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params, locale }) 
 export default function PostPage({ post, dateLabel, locale }: Props) {
   const title = post.seo_title || `${post.title} — Instituto Brasil Te Ama`;
   const description = post.seo_description || post.excerpt || '';
-  const canonical = `${SITE_URL}/conteudo/${post.slug}`;
+  const postPath = `/conteudo/${post.slug}`;
+  const canonical = localizedUrl(postPath, locale);
   const ogImage = post.og_image_url || post.cover_url || DEFAULT_OG_IMAGE;
   return (
     <>
@@ -52,6 +53,9 @@ export default function PostPage({ post, dateLabel, locale }: Props) {
         <title>{title}</title>
         {description ? <meta name="description" content={description} /> : null}
         <link rel="canonical" href={canonical} />
+        {hreflangAlternates(postPath).map((a) => (
+          <link key={a.hrefLang} rel="alternate" hrefLang={a.hrefLang} href={a.href} />
+        ))}
         <meta property="og:type" content="article" />
         <meta property="og:site_name" content={SITE_NAME} />
         <meta property="og:locale" content={OG_LOCALE[locale]} />

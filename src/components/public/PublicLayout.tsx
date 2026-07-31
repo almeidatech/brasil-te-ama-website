@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import { SITE_NAME, DEFAULT_OG_IMAGE, canonicalUrl } from '@/lib/seo';
+import { SITE_NAME, DEFAULT_OG_IMAGE, localizedUrl, hreflangAlternates } from '@/lib/seo';
 import { DEFAULT_LOCALE, isLocale, OG_LOCALE } from '@/lib/i18n';
 
 export interface PublicPageContent {
@@ -15,14 +15,19 @@ export interface PublicPageContent {
 
 export default function PublicLayout({ title, description, html }: PublicPageContent) {
   const { asPath, locale } = useRouter();
-  const canonical = canonicalUrl(asPath);
-  const ogLocale = OG_LOCALE[isLocale(locale) ? locale : DEFAULT_LOCALE];
+  const loc = isLocale(locale) ? locale : DEFAULT_LOCALE;
+  const canonical = localizedUrl(asPath, loc);
+  const ogLocale = OG_LOCALE[loc];
   return (
     <>
       <Head>
         <title>{title}</title>
         {description ? <meta name="description" content={description} /> : null}
         <link rel="canonical" href={canonical} />
+        {/* hreflang — conecta as versões PT/EN/ES/IT/FR + x-default */}
+        {hreflangAlternates(asPath).map((a) => (
+          <link key={a.hrefLang} rel="alternate" hrefLang={a.hrefLang} href={a.href} />
+        ))}
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={SITE_NAME} />
