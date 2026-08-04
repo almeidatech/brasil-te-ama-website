@@ -394,8 +394,10 @@ p, li, span, label, button, input, textarea, select, a { font-family: var(--font
 }
 .imgcard__media img {
   width: 100%; height: 100%; object-fit: cover; display: block;
-  /* Para fotos verticais, recorta pela base — preserva rostos/topo da imagem. */
-  object-position: top center;
+  /* As capas vão de 0,74 (retrato) a 1,80 (widescreen) dentro de um quadro 16/10.
+     Recortar pelo topo enchia o card de céu/teto e empurrava as pessoas pra fora
+     nas verticais; centrado, o assunto fica no quadro em todas as proporções. */
+  object-position: center;
   mix-blend-mode: multiply; opacity: .9;
 }
 .imgcard__badge {
