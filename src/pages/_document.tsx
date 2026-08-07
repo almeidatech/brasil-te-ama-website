@@ -4,7 +4,7 @@ export default function Document() {
   return (
     <Html lang="pt-BR">
       <Head>
-        <link rel="icon" href="/assets/heart-mark.svg" />
+        <link rel="icon" href="/assets/brasil-te-ama-favicon.png" />
       </Head>
       <body>
         <Main />
