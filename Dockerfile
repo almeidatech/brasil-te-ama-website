@@ -13,8 +13,8 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build-time public env (Next inlines NEXT_PUBLIC_* into client bundles).
-ARG NEXT_PUBLIC_SITE_URL=https://brasilteama.alcgestao.com.br
-ARG NEXT_PUBLIC_NOINDEX=true
+ARG NEXT_PUBLIC_SITE_URL=https://institutobrasilteama.org
+ARG NEXT_PUBLIC_NOINDEX=false
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ARG NEXT_PUBLIC_SENTRY_DSN
