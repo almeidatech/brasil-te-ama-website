@@ -36,11 +36,11 @@ const nextConfig = {
       { source: '/assets/img/:path*',   headers: [{ key: 'Cache-Control', value: oneYearImmutable }] },
       { source: '/_next/static/:path*', headers: [{ key: 'Cache-Control', value: oneYearImmutable }] },
     ];
-    // Staging guard: when deploying to the temporary subdomain we block all
-    // indexing so the staging URL never competes with the official domain.
-    // The official-domain deploy simply omits NEXT_PUBLIC_NOINDEX → header gone.
-    if (process.env.NEXT_PUBLIC_NOINDEX === 'true') {
-      rules.push({ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] });
+    if (process.env.NODE_ENV === 'production') {
+      const isStaging = process.env.NEXT_PUBLIC_SITE_URL?.includes('alcgestao.com.br');
+      if (isStaging) {
+        rules.push({ source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] });
+      }
     }
     return rules;
   },
