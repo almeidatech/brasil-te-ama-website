@@ -104,9 +104,14 @@ jobs:
 
       - name: Wait for service health
         run: |
+          # Sonda o host de PRODUÇÃO. Até 2026-08-11 este passo sondava
+          # brasilteama.alcgestao.com.br, que saiu do DNS e passou a responder
+          # HTTP 000 — o deploy aplicava normalmente e o job falhava depois,
+          # dando "deploy vermelho" para uma entrega que estava no ar.
+          HEALTH_URL="${HEALTH_URL:-https://institutobrasilteama.org/}"
           for i in {1..30}; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' https://brasilteama.alcgestao.com.br/ || true)
-            echo "Attempt $i: HTTP $code"
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$HEALTH_URL" || true)
+            echo "Attempt $i: HTTP $code ($HEALTH_URL)"
             if [ "$code" = "200" ]; then exit 0; fi
             sleep 10
           done
