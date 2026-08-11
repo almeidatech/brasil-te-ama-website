@@ -1,10 +1,30 @@
 version: "3.9"
 
 # Docker Swarm stack for Brasil te Ama
-# Deployed via: docker stack deploy -c stack.yml brasilteama
 #
-# Staging domain: brasilteama.alcgestao.com.br
-# Official domain (após aprovação do dono): institutobrasilteama.org
+# Deploy: o workflow build-deploy.yml faz `scp deploy/stack.yml` para
+# /root/brasilteama-stack.yml na VPS2 e roda `docker stack deploy` a partir
+# DESTE arquivo. Ou seja: este arquivo é a fonte da verdade e sobrescreve o
+# que estiver no servidor a cada push.
+#
+# Staging:  brasilteama.alcgestao.com.br  (noindex via middleware Traefik)
+# Produção: institutobrasilteama.org      (+ www, que redireciona para o apex)
+#
+# ⚠️ RECONCILIAÇÃO 2026-08-11 — este arquivo estava DEFASADO em relação ao que
+# rodava em produção, em três pontos, cada um capaz de causar um incidente:
+#
+#   1. não declarava os routers de produção (só os de staging), então o próximo
+#      deploy removeria o router de institutobrasilteama.org e o site sairia
+#      do ar com HTTP 404;
+#   2. NEXT_PUBLIC_NOINDEX estava "true" — o deploy marcaria a produção inteira
+#      como noindex/nofollow;
+#   3. NEXT_PUBLIC_SITE_URL apontava para o host de staging, o que quebraria
+#      canonical, sitemap e OG do site de produção.
+#
+# Os routers de produção tinham sido criados direto no servidor e nunca
+# voltaram para cá. Regra: NADA de `docker service update` como correção
+# definitiva neste stack — o próximo deploy sobrescreve. A mudança vem sempre
+# por este arquivo.
 
 services:
   web:
@@ -13,8 +33,11 @@ services:
       - olmedaNet
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_SITE_URL: https://brasilteama.alcgestao.com.br
-      NEXT_PUBLIC_NOINDEX: "true"
+      # Produção é o default. O ambiente de staging sobrescreve os dois via env
+      # no momento do deploy — nunca editando este arquivo, para não repetir a
+      # divergência de 2026-08-11.
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://institutobrasilteama.org}
+      NEXT_PUBLIC_NOINDEX: "${NEXT_PUBLIC_NOINDEX:-false}"
       NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
@@ -50,15 +73,47 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=olmedaNet"
-        # HTTP (entrypoint web) — Traefik global redirect already sends to websecure
-        - "traefik.http.routers.brasilteama-http.entrypoints=web"
-        - "traefik.http.routers.brasilteama-http.rule=Host(`brasilteama.alcgestao.com.br`)"
+
+        # ---------- PRODUÇÃO: institutobrasilteama.org (+ www) ----------
+        # HTTP (entrypoint web) — o redirect global do Traefik manda para websecure
+        - "traefik.http.routers.brasilteama-prod-http.entrypoints=web"
+        - "traefik.http.routers.brasilteama-prod-http.rule=Host(`institutobrasilteama.org`) || Host(`www.institutobrasilteama.org`)"
         # HTTPS
-        - "traefik.http.routers.brasilteama-https.entrypoints=websecure"
-        - "traefik.http.routers.brasilteama-https.rule=Host(`brasilteama.alcgestao.com.br`)"
-        - "traefik.http.routers.brasilteama-https.tls=true"
-        - "traefik.http.routers.brasilteama-https.tls.certresolver=letsencryptresolver"
-        # Service / loadbalancer
+        - "traefik.http.routers.brasilteama-prod-https.entrypoints=websecure"
+        - "traefik.http.routers.brasilteama-prod-https.rule=Host(`institutobrasilteama.org`) || Host(`www.institutobrasilteama.org`)"
+        - "traefik.http.routers.brasilteama-prod-https.service=brasilteama-svc"
+        - "traefik.http.routers.brasilteama-prod-https.tls=true"
+        - "traefik.http.routers.brasilteama-prod-https.tls.certresolver=letsencryptresolver"
+        - "traefik.http.routers.brasilteama-prod-https.middlewares=brasilteama-www-redirect"
+
+        # www → apex, 301 permanente.
+        # Até 2026-08-11 o `www` tinha DNS no Cloudflare mas NÃO estava na regra
+        # do router: caía no catch-all do Traefik e respondia 404.
+        #
+        # Dois cuidados de sintaxe aqui:
+        #   • aspas SIMPLES no YAML, senão as barras invertidas do regex viram
+        #     escapes inválidos e o parser rejeita o arquivo;
+        #   • `$${1}` e não `${1}` — o Compose interpola `${...}` antes de
+        #     entregar ao Swarm, e `${1}` viraria string vazia (o redirect
+        #     perderia o path). `$$` produz um `$` literal no label final.
+        - 'traefik.http.middlewares.brasilteama-www-redirect.redirectregex.regex=^https?://www\.institutobrasilteama\.org/(.*)'
+        - 'traefik.http.middlewares.brasilteama-www-redirect.redirectregex.replacement=https://institutobrasilteama.org/$${1}'
+        - "traefik.http.middlewares.brasilteama-www-redirect.redirectregex.permanent=true"
+
+        # ---------- STAGING: brasilteama.alcgestao.com.br ----------
+        - "traefik.http.routers.brasilteama-staging-http.entrypoints=web"
+        - "traefik.http.routers.brasilteama-staging-http.rule=Host(`brasilteama.alcgestao.com.br`)"
+        - "traefik.http.routers.brasilteama-staging-https.entrypoints=websecure"
+        - "traefik.http.routers.brasilteama-staging-https.rule=Host(`brasilteama.alcgestao.com.br`)"
+        - "traefik.http.routers.brasilteama-staging-https.service=brasilteama-svc"
+        - "traefik.http.routers.brasilteama-staging-https.tls=true"
+        - "traefik.http.routers.brasilteama-staging-https.tls.certresolver=letsencryptresolver"
+        # noindex aplicado SÓ ao staging, no edge — a produção precisa ser
+        # indexável, e é por isso que NEXT_PUBLIC_NOINDEX no app é `false`.
+        - "traefik.http.routers.brasilteama-staging-https.middlewares=brasil-noindex"
+        - "traefik.http.middlewares.brasil-noindex.headers.customresponseheaders.X-Robots-Tag=noindex, nofollow"
+
+        # ---------- Service / loadbalancer ----------
         - "traefik.http.services.brasilteama-svc.loadbalancer.server.port=3000"
         - "traefik.http.services.brasilteama-svc.loadbalancer.healthcheck.path=/"
         - "traefik.http.services.brasilteama-svc.loadbalancer.healthcheck.interval=30s"
