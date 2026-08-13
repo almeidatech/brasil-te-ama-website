@@ -7,8 +7,11 @@ version: "3.9"
 # DESTE arquivo. Ou seja: este arquivo é a fonte da verdade e sobrescreve o
 # que estiver no servidor a cada push.
 #
-# Staging:  brasilteama.alcgestao.com.br  (noindex via middleware Traefik)
 # Produção: institutobrasilteama.org      (+ www, que redireciona para o apex)
+#
+# Staging: removido em 2026-08-13. O host brasilteama.alcgestao.com.br não
+# resolve mais em DNS, então os routers de staging (e o middleware
+# brasil-noindex, usado só por eles) viravam configuração morta no Traefik.
 #
 # ⚠️ RECONCILIAÇÃO 2026-08-11 — este arquivo estava DEFASADO em relação ao que
 # rodava em produção, em três pontos, cada um capaz de causar um incidente:
@@ -99,19 +102,6 @@ services:
         - 'traefik.http.middlewares.brasilteama-www-redirect.redirectregex.regex=^https?://www\.institutobrasilteama\.org/(.*)'
         - 'traefik.http.middlewares.brasilteama-www-redirect.redirectregex.replacement=https://institutobrasilteama.org/$${1}'
         - "traefik.http.middlewares.brasilteama-www-redirect.redirectregex.permanent=true"
-
-        # ---------- STAGING: brasilteama.alcgestao.com.br ----------
-        - "traefik.http.routers.brasilteama-staging-http.entrypoints=web"
-        - "traefik.http.routers.brasilteama-staging-http.rule=Host(`brasilteama.alcgestao.com.br`)"
-        - "traefik.http.routers.brasilteama-staging-https.entrypoints=websecure"
-        - "traefik.http.routers.brasilteama-staging-https.rule=Host(`brasilteama.alcgestao.com.br`)"
-        - "traefik.http.routers.brasilteama-staging-https.service=brasilteama-svc"
-        - "traefik.http.routers.brasilteama-staging-https.tls=true"
-        - "traefik.http.routers.brasilteama-staging-https.tls.certresolver=letsencryptresolver"
-        # noindex aplicado SÓ ao staging, no edge — a produção precisa ser
-        # indexável, e é por isso que NEXT_PUBLIC_NOINDEX no app é `false`.
-        - "traefik.http.routers.brasilteama-staging-https.middlewares=brasil-noindex"
-        - "traefik.http.middlewares.brasil-noindex.headers.customresponseheaders.X-Robots-Tag=noindex, nofollow"
 
         # ---------- Service / loadbalancer ----------
         - "traefik.http.services.brasilteama-svc.loadbalancer.server.port=3000"
