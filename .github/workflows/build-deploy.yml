@@ -69,6 +69,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # A porta 22 do servidor nao fica exposta na internet. O runner entra
+      # na rede Tailscale como no efemero e alcanca o host pelo IP 100.x.
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
       - name: Install SSH key
         run: |
           mkdir -p ~/.ssh
